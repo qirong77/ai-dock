@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import type { Provider, ProviderId } from '../types'
+import brandIcon from '../assets/brand-icon.svg'
 
 const PROVIDER_ORDER_STORAGE_KEY = 'aidock.provider-order'
 const LEGACY_PROVIDER_ORDER_STORAGE_KEY = 'ai-chat.provider-order'
@@ -79,7 +80,9 @@ export default function Sidebar({
   return (
     <aside className={`sidebar${collapsed ? ' collapsed' : ''}`} style={{ width: collapsed ? 64 : width }}>
       <div className="sidebar-brand">
-        <span className="brand-logo">AI</span>
+        <span className="brand-logo" aria-hidden="true">
+          <img src={brandIcon} alt="" />
+        </span>
         <div className="brand-copy">
           <div className="brand-title">AIDock</div>
           <div className="brand-sub">AI workspace</div>
@@ -164,7 +167,10 @@ export default function Sidebar({
         role="separator"
         aria-orientation="vertical"
         aria-label="调整侧栏宽度"
-        onPointerDown={onResizeStart}
+        onPointerDown={(event) => {
+          event.currentTarget.setPointerCapture(event.pointerId)
+          onResizeStart()
+        }}
       />
     </aside>
   )

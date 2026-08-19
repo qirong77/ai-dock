@@ -1,9 +1,17 @@
 import { app, shell, BrowserWindow } from 'electron'
+import { existsSync } from 'fs'
 import { join } from 'path'
 
 let isQuitting = false
 
 app.setName('AIDock')
+
+// 开发/未打包时用源码图标，保证窗口与 Dock 图标和打包产物一致；
+// 打包后 build/ 不在 asar 中，系统会自动使用 .icns/.ico，这里返回 undefined
+function resolveIconPath(): string | undefined {
+  const icon = join(app.getAppPath(), 'build/icon.png')
+  return existsSync(icon) ? icon : undefined
+}
 
 function createWindow(): void {
   const mainWindow = new BrowserWindow({
@@ -14,6 +22,7 @@ function createWindow(): void {
     show: false,
     autoHideMenuBar: true,
     title: 'AIDock',
+    icon: resolveIconPath(),
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
       sandbox: false,
@@ -50,6 +59,10 @@ function createWindow(): void {
 }
 
 app.whenReady().then(() => {
+  if (process.platform === 'darwin' && !app.isPackaged) {
+    const icon = resolveIconPath()
+    if (icon) app.dock?.setIcon(icon)
+  }
   createWindow()
 
   app.on('activate', () => {
