@@ -101,7 +101,9 @@ export default function WebViewPanel({ provider, active }: WebViewPanelProps): R
         ref={ref}
         src={provider.url}
         partition="persist:aidock"
-        allowpopups
+        // React 会丢弃未知 DOM 属性的布尔值；字符串才能真正写入
+        // allowpopups 属性。Electron 的 JSX 类型仍将它声明为 boolean。
+        allowpopups={'true' as unknown as boolean}
         className="webview"
       />
     </div>
