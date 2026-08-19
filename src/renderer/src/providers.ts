@@ -4,8 +4,9 @@ import doubaoIcon from '@lobehub/icons-static-svg/icons/doubao-color.svg'
 import geminiIcon from '@lobehub/icons-static-svg/icons/gemini-color.svg'
 import qwenIcon from '@lobehub/icons-static-svg/icons/qwen-color.svg'
 import deepseekIcon from '@lobehub/icons-static-svg/icons/deepseek-color.svg'
-import kimiIcon from '@lobehub/icons-static-svg/icons/kimi-color.svg'
+import kimiIcon from '@lobehub/icons-static-svg/icons/kimi.svg'
 import openaiIcon from '@lobehub/icons-static-svg/icons/openai.svg'
+import claudeIcon from '@lobehub/icons-static-svg/icons/claude-color.svg'
 
 export const PROVIDERS: Provider[] = [
   {
@@ -70,11 +71,21 @@ export const PROVIDERS: Provider[] = [
     iconUrl: openaiIcon,
     description: 'OpenAI ChatGPT 官方网页版',
     url: 'https://chatgpt.com/'
+  },
+  {
+    id: 'claude',
+    name: 'Claude',
+    tagline: 'Anthropic · 长上下文',
+    accent: '#d97757',
+    iconUrl: claudeIcon,
+    description: 'Anthropic Claude 官方 AI 助手',
+    url: 'https://claude.ai/'
   }
 ]
 
 export const CUSTOM_PROVIDERS_STORAGE_KEY = 'aidock.custom-providers'
 const LEGACY_CUSTOM_PROVIDERS_STORAGE_KEY = 'ai-chat.custom-providers'
+export const PROVIDERS_STORAGE_KEY = 'aidock.providers'
 
 interface StoredCustomProvider {
   id: string
@@ -141,12 +152,76 @@ export function saveCustomProviders(providers: Provider[]): void {
   localStorage.setItem(CUSTOM_PROVIDERS_STORAGE_KEY, JSON.stringify(stored))
 }
 
-export function createCustomProvider(name: string, url: string): Provider {
+export function isValidProviderInput(name: string, url: string): boolean {
+  try {
+    const parsed = new URL(url.trim())
+    return name.trim().length > 0 && (parsed.protocol === 'https:' || parsed.protocol === 'http:')
+  } catch {
+    return false
+  }
+}
+
+export function createProvider(name: string, url: string): Provider {
   return toCustomProvider({
     id: `custom-${crypto.randomUUID()}`,
     name: name.trim(),
     url: url.trim()
   })
+}
+
+function toProvider(stored: unknown): Provider | null {
+  if (typeof stored !== 'object' || stored === null) return null
+  const { id, name, url } = stored as { id?: unknown; name?: unknown; url?: unknown }
+  if (
+    typeof id !== 'string' ||
+    id.length === 0 ||
+    typeof name !== 'string' ||
+    name.trim().length === 0 ||
+    typeof url !== 'string' ||
+    !isValidUrl(url)
+  ) {
+    return null
+  }
+
+  const builtin = PROVIDERS.find((provider) => provider.id === id)
+  if (builtin) return { ...builtin, name: name.trim(), url: url.trim() }
+  return toCustomProvider({ id, name, url })
+}
+
+/** 统一加载全部 AI 服务（内置 + 自定义）。首次运行时合并默认内置与旧版自定义配置并落盘。 */
+export function loadProviders(): Provider[] {
+  const storedRaw = localStorage.getItem(PROVIDERS_STORAGE_KEY)
+  if (storedRaw) {
+    try {
+      const stored: unknown = JSON.parse(storedRaw)
+      const providers = (Array.isArray(stored) ? stored : [])
+        .map(toProvider)
+        .filter((provider): provider is Provider => provider !== null)
+      if (providers.length > 0) {
+        // 补上新增的默认服务（如 Claude），保留用户已有列表
+        const missingDefaults = PROVIDERS.filter(
+          (provider) => !providers.some((storedProvider) => storedProvider.id === provider.id)
+        )
+        if (missingDefaults.length > 0) {
+          const merged = [...providers, ...missingDefaults]
+          saveProviders(merged)
+          return merged
+        }
+        return providers
+      }
+    } catch {
+      // 存储损坏时回退到默认列表
+    }
+  }
+
+  const providers = [...PROVIDERS, ...loadCustomProviders()]
+  saveProviders(providers)
+  return providers
+}
+
+export function saveProviders(providers: Provider[]): void {
+  const stored = providers.map(({ id, name, url }) => ({ id, name, url }))
+  localStorage.setItem(PROVIDERS_STORAGE_KEY, JSON.stringify(stored))
 }
 
 export function getProvider(id: ProviderId): Provider {

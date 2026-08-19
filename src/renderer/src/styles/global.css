@@ -202,9 +202,9 @@ body {
 .provider-icon {
   width: 36px;
   height: 36px;
-  border: 1px solid color-mix(in srgb, var(--icon-tint) 10%, transparent);
-  border-radius: 11px;
-  background: color-mix(in srgb, var(--icon-tint) 10%, white);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: #fff;
   display: grid;
   place-items: center;
   flex-shrink: 0;
@@ -216,25 +216,14 @@ body {
 }
 
 .provider-item:hover .provider-icon {
-  background: color-mix(in srgb, var(--icon-tint) 14%, white);
-  border-color: color-mix(in srgb, var(--icon-tint) 18%, transparent);
+  background: #f5f5f6;
+  border-color: #dcdbde;
   transform: scale(1.04);
 }
 
 .provider-item.active .provider-icon {
-  background: color-mix(in srgb, var(--icon-tint) 14%, white);
-  border-color: color-mix(in srgb, var(--icon-tint) 22%, transparent);
-}
-
-.provider-icon-kimi,
-.provider-item.active .provider-icon-kimi {
-  border-color: #252525;
-  background: #171717;
-}
-
-.provider-item:hover .provider-icon-kimi {
-  border-color: #303030;
-  background: #222222;
+  background: color-mix(in srgb, var(--icon-tint) 10%, #fff);
+  border-color: color-mix(in srgb, var(--icon-tint) 30%, transparent);
 }
 
 .provider-icon img {
@@ -242,11 +231,6 @@ body {
   width: 22px;
   height: 22px;
   object-fit: contain;
-}
-
-.provider-icon-kimi img {
-  width: 24px;
-  height: 24px;
 }
 
 .provider-info {
@@ -263,28 +247,32 @@ body {
 .sidebar-settings {
   display: flex;
   align-items: center;
-  gap: 7px;
+  gap: 8px;
   width: 100%;
-  margin-top: 6px;
-  padding: 8px;
+  margin-top: auto;
+  margin-bottom: 4px;
+  padding: 9px 10px;
   border: 0;
-  border-radius: 8px;
+  border-radius: 10px;
   background: transparent;
   color: var(--text-secondary);
   font: inherit;
-  font-size: 12px;
+  font-size: 13px;
+  font-weight: 500;
   cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
 }
 
 .sidebar-settings:hover {
+  background: #f0f0f1;
   color: var(--text);
 }
 
 .sidebar-settings svg {
   display: block;
-  flex: 0 0 16px;
-  width: 16px;
-  height: 16px;
+  flex: 0 0 18px;
+  width: 18px;
+  height: 18px;
   fill: none;
   stroke: currentcolor;
   stroke-linecap: round;
@@ -478,6 +466,110 @@ body {
 
 .settings-delete:hover {
   background: #fff0f0;
+}
+
+.settings-delete:disabled {
+  color: #c9a0a0;
+  cursor: not-allowed;
+}
+
+.settings-delete:disabled:hover {
+  background: transparent;
+}
+
+.settings-actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.settings-edit-btn {
+  padding: 4px 6px;
+  border: 0;
+  border-radius: 5px;
+  background: transparent;
+  color: #5b6cff;
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.settings-edit-btn:hover {
+  background: #eef0ff;
+}
+
+.settings-row.editing {
+  grid-template-columns: 1fr;
+}
+
+.settings-edit {
+  display: grid;
+  gap: 10px;
+  padding: 4px 0;
+}
+
+.settings-edit label {
+  display: grid;
+  gap: 4px;
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+
+.settings-edit input {
+  width: 100%;
+  min-width: 0;
+  height: 32px;
+  padding: 0 10px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  outline: none;
+  color: var(--text);
+  font: inherit;
+  font-size: 13px;
+}
+
+.settings-edit input:focus {
+  border-color: #7c8cff;
+  box-shadow: 0 0 0 3px rgb(91 108 255 / 12%);
+}
+
+.settings-edit-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.settings-save {
+  height: 30px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 7px;
+  background: #5b6cff;
+  color: #fff;
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.settings-save:hover {
+  background: #4d5eea;
+}
+
+.settings-cancel {
+  height: 30px;
+  padding: 0 12px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: transparent;
+  color: var(--text-secondary);
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.settings-cancel:hover {
+  background: #f1f1f3;
+  color: var(--text);
 }
 
 .settings-form {
